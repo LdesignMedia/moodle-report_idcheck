@@ -86,7 +86,7 @@ $PAGE->set_pagelayout('report');
 require_login($course);
 
 // Check basic permission
-require_capability('report/progress:view', $context);
+require_capability('report/idcheck:view', $context);
 
 // Get group mode
 $group = groups_get_course_group($course, true); // Supposed to verify group
@@ -304,6 +304,9 @@ if (!$csv) {
     foreach ($extrafields as $field) {
         echo $sep . csv_quote(get_user_field_name($field));
     }
+
+    echo $sep . csv_quote(get_string('questionpopup:answer', 'report_idcheck'));
+    echo $sep . csv_quote(get_string('coursecompletion', 'report_idcheck'));
 }
 
 // Activities
@@ -352,14 +355,18 @@ if ($csv) {
 
 // Row for each user
 foreach ($progress as $user) {
-    // User name
+
+    $answer = report_idcheck_questionpopup_answer($user->id, $course->id);
+    $completed = ($completion->is_course_complete($user->id) ? get_string('yes') : get_string('no'));
+
     if ($csv) {
         print csv_quote(fullname($user));
         foreach ($extrafields as $field) {
             echo $sep . csv_quote($user->{$field});
         }
         //
-
+        print $sep . csv_quote($answer);
+        print $sep . csv_quote($completed);
     } else {
         print '<tr><th scope="row"><a href="' . $CFG->wwwroot . '/user/view.php?id=' .
             $user->id . '&amp;course=' . $course->id . '">' . fullname($user) . '</a></th>';
@@ -367,11 +374,10 @@ foreach ($progress as $user) {
             echo '<td>' . s($user->{$field}) . '</td>';
         }
         //
-        $answer =  report_idcheck_questionpopup_answer($user->id, $course->id);
-        echo '<td>' . $answer . '</td>';
-        echo '<td>' .  ($completion->is_course_complete($user->id) ? get_string('yes') : get_string('no')) . '</td>';
-    }
 
+        echo '<td>' . $answer . '</td>';
+        echo '<td>' . $completed . '</td>';
+    }
     // Progress for each activity
     foreach ($activities as $activity) {
 
