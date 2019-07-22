@@ -17,9 +17,9 @@
 /**
  * Activity progress reports
  *
- * @package   report_idcheck
- * @copyright 2019-07-22 Mfreak.nl | LdesignMedia.nl - Luuk Verhoeven
- * @author    Luuk Verhoeven
+ * @package    report_idcheck
+ * @copyright  2019-07-22 Mfreak.nl | LdesignMedia.nl - Luuk Verhoeven
+ * @author     Luuk Verhoeven
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -64,7 +64,7 @@ function csv_quote($value) {
     }
 }
 
-$url = new moodle_url('/report/progress/index.php', ['course' => $id]);
+$url = new moodle_url('/report/idcheck/index.php', ['course' => $id]);
 if ($sort !== '') {
     $url->param('sort', $sort);
 }
@@ -181,7 +181,7 @@ if ($csv && $grandtotal && count($activities) > 0) { // Only show CSV if there a
     echo $OUTPUT->header();
 
     // Handle groups (if enabled)
-    groups_print_course_menu($course, $CFG->wwwroot . '/report/progress/?course=' . $course->id);
+    groups_print_course_menu($course, $CFG->wwwroot . '/report/idcheck/?course=' . $course->id);
 }
 
 if (count($activities) == 0) {
@@ -198,7 +198,7 @@ if (!$grandtotal) {
 }
 
 // Build link for paging
-$link = $CFG->wwwroot . '/report/progress/?course=' . $course->id;
+$link = $CFG->wwwroot . '/report/idcheck/?course=' . $course->id;
 if (strlen($sort)) {
     $link .= '&amp;sort=' . $sort;
 }
@@ -296,6 +296,10 @@ if (!$csv) {
         echo '<th scope="col" class="completion-identifyfield">' .
             get_user_field_name($field) . '</th>';
     }
+
+    echo '<th>' . get_string('questionpopup:answer', 'report_idcheck') . '</th>';
+    echo '<th>' . get_string('coursecompletion', 'report_idcheck') . '</th>';
+
 } else {
     foreach ($extrafields as $field) {
         echo $sep . csv_quote(get_user_field_name($field));
@@ -354,12 +358,18 @@ foreach ($progress as $user) {
         foreach ($extrafields as $field) {
             echo $sep . csv_quote($user->{$field});
         }
+        //
+
     } else {
         print '<tr><th scope="row"><a href="' . $CFG->wwwroot . '/user/view.php?id=' .
             $user->id . '&amp;course=' . $course->id . '">' . fullname($user) . '</a></th>';
         foreach ($extrafields as $field) {
             echo '<td>' . s($user->{$field}) . '</td>';
         }
+        //
+        $answer =  report_idcheck_questionpopup_answer($user->id, $course->id);
+        echo '<td>' . $answer . '</td>';
+        echo '<td>' .  ($completion->is_course_complete($user->id) ? get_string('yes') : get_string('no')) . '</td>';
     }
 
     // Progress for each activity

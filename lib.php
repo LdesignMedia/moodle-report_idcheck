@@ -31,9 +31,12 @@ defined('MOODLE_INTERNAL') || die;
  * @param navigation_node $navigation The navigation node to extend
  * @param stdClass        $course     The course to object for the report
  * @param stdClass        $context    The context of the course
+ *
+ * @throws coding_exception
+ * @throws moodle_exception
  */
 function report_idcheck_extend_navigation_course($navigation, $course, $context) {
-    global $CFG, $OUTPUT;
+    global $CFG, $DB;
 
     require_once($CFG->libdir . '/completionlib.php');
 
@@ -43,12 +46,50 @@ function report_idcheck_extend_navigation_course($navigation, $course, $context)
         $showonnavigation = ($showonnavigation && has_capability('moodle/site:accessallgroups', $context));
     }
 
+    // Check if there is a 'questionpopup' added to the course.
+    if (!$DB->record_exists('block_instances', ['parentcontextid' => $context->id, 'blockname' => 'questionpopup'])) {
+        return;
+    }
+
     $completion = new completion_info($course);
     $showonnavigation = ($showonnavigation && $completion->is_enabled() && $completion->has_activities());
     if ($showonnavigation) {
-        $url = new moodle_url('/report/progress/index.php', ['course' => $course->id]);
-        $navigation->add(get_string('pluginname', 'report_idcheck'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
+        $url = new moodle_url('/report/idcheck/index.php', ['course' => $course->id]);
+        $navigation->add(get_string('pluginname', 'report_idcheck'), $url, navigation_node::TYPE_SETTING,
+            null, null, new pix_icon('i/report', ''));
     }
+}
+
+/**
+ * report_idcheck_questionpopup_answer
+ *
+ * @param int $userid
+ * @param int $courseid
+ *
+ * @return string
+ * @throws dml_exception
+ */
+function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : string {
+    global $DB;
+    $coursecontext = context_course::instance($courseid);
+
+    $sql = 'SELECT a.answer
+            FROM {block_instances} bi 
+            JOIN {context} c ON (bi.id = c.instanceid AND c.contextlevel = 80)
+            JOIN {block_questionpopup_answer} a ON (a.userid = :userid AND a.contextid = c.id)
+            WHERE
+                    bi.parentcontextid = :parentcontextid
+                AND 
+                    bi.blockname = :blockname
+                ';
+
+    $answer = $DB->get_record_sql($sql, [
+        'userid' => $userid,
+        'parentcontextid' => $coursecontext->id,
+        'blockname' => 'questionpopup',
+    ]);
+
+    return $answer->answer ?? '-';
 }
 
 /**
@@ -59,6 +100,7 @@ function report_idcheck_extend_navigation_course($navigation, $course, $context)
  * @param stdClass $currentcontext Current context of block
  *
  * @return array
+ * @throws coding_exception
  */
 function report_idcheck_page_type_list($pagetype, $parentcontext, $currentcontext) {
     $array = [

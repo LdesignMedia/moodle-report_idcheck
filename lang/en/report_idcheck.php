@@ -27,3 +27,5 @@ $string['pluginname'] = 'Report ID-check';
 
 $string['privacy:metadata'] = 'The ID-check report only shows data stored in other locations.';
 $string['idcheck:view'] = 'View ID-check reports';
+$string['questionpopup:answer'] = 'Answer';
+$string['coursecompletion'] = 'Course completed';
