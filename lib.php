@@ -112,3 +112,23 @@ function report_idcheck_page_type_list($pagetype, $parentcontext, $currentcontex
 
     return $array;
 }
+
+/**
+ * @param int $userid
+ * @param int $courseid
+ *
+ * @return string
+ * @throws dml_exception
+ */
+function report_idcheck_phone_answer(int $userid, int $courseid = 0) {
+    global $DB;
+    $html = '';
+
+    $rs = $DB->get_recordset('availability_sms', ['userid' => $userid, 'course' => $courseid]);
+    foreach ($rs as $row) {
+        $html .= $row->phone . '<br>';
+    }
+    $rs->close();
+
+    return $html;
+}

@@ -25,6 +25,7 @@
 
 require('../../config.php');
 require_once($CFG->libdir . '/completionlib.php');
+require_once('lib.php');
 
 define('COMPLETION_REPORT_PAGE', 25);
 
@@ -298,7 +299,9 @@ if (!$csv) {
     }
 
     echo '<th>' . get_string('questionpopup:answer', 'report_idcheck') . '</th>';
+    echo '<th>' . get_string('phone:answer', 'report_idcheck') . '</th>';
     echo '<th>' . get_string('coursecompletion', 'report_idcheck') . '</th>';
+    echo '<th>' . get_string('coursecompletion_time', 'report_idcheck') . '</th>';
 
 } else {
     foreach ($extrafields as $field) {
@@ -306,12 +309,19 @@ if (!$csv) {
     }
 
     echo $sep . csv_quote(get_string('questionpopup:answer', 'report_idcheck'));
+    echo $sep . csv_quote(get_string('phone:answer', 'report_idcheck'));
     echo $sep . csv_quote(get_string('coursecompletion', 'report_idcheck'));
+    echo $sep . csv_quote(get_string('coursecompletion_time', 'report_idcheck'));
 }
 
 // Activities
 $formattedactivities = [];
 foreach ($activities as $activity) {
+
+    if ($activity->modname !== 'forum') {
+        continue;
+    }
+
     $datepassed = $activity->completionexpected && $activity->completionexpected <= time();
     $datepassedclass = $datepassed ? 'completion-expired' : '';
 
@@ -357,7 +367,15 @@ if ($csv) {
 foreach ($progress as $user) {
 
     $answer = report_idcheck_questionpopup_answer($user->id, $course->id);
-    $completed = ($completion->is_course_complete($user->id) ? get_string('yes') : get_string('no'));
+    $phoneanswer = report_idcheck_phone_answer($user->id, $course->id);
+
+    $ccompletion = new completion_completion([
+        'userid' => $user->id,
+        'course' => $course->id,
+    ]);
+
+    $completed = ($ccompletion->is_complete() ? get_string('yes') : get_string('no'));
+    $completedtime = $ccompletion->timecompleted > 0 ? date('d-m-Y H:i', $ccompletion->timecompleted) : '-';
 
     if ($csv) {
         print csv_quote(fullname($user));
@@ -366,7 +384,10 @@ foreach ($progress as $user) {
         }
         //
         print $sep . csv_quote($answer);
+        print $sep . csv_quote($phoneanswer);
         print $sep . csv_quote($completed);
+        print $sep . csv_quote($completedtime);
+
     } else {
         print '<tr><th scope="row"><a href="' . $CFG->wwwroot . '/user/view.php?id=' .
             $user->id . '&amp;course=' . $course->id . '">' . fullname($user) . '</a></th>';
@@ -376,10 +397,18 @@ foreach ($progress as $user) {
         //
 
         echo '<td>' . $answer . '</td>';
+        echo '<td>' . $phoneanswer . '</td>';
         echo '<td>' . $completed . '</td>';
+        echo '<td>' . $completedtime . '</td>';
     }
+
     // Progress for each activity
     foreach ($activities as $activity) {
+
+
+        if ($activity->modname !== 'forum') {
+            continue;
+        }
 
         // Get progress information and state
         if (array_key_exists($activity->id, $user->progress)) {
@@ -425,7 +454,10 @@ foreach ($progress as $user) {
         $fulldescribe = get_string('progress-title', 'completion', $a);
 
         if ($csv) {
+
+            $describe .= PHP_EOL . html_to_text(\report_idcheck\helper::get_answers_forum($activity->instance, $user->id));
             print $sep . csv_quote($describe) . $sep . csv_quote($date);
+
         } else {
             $celltext = $OUTPUT->pix_icon('i/' . $completionicon, s($fulldescribe));
             if (has_capability('moodle/course:overridecompletion', $context) &&
@@ -442,6 +474,8 @@ foreach ($progress as $user) {
                     'role' => 'button',
                 ]);
             }
+
+            $celltext .= \report_idcheck\helper::get_answers_forum($activity->instance, $user->id);
             print '<td class="completion-progresscell ' . $formattedactivities[$activity->id]->datepassedclass . '">' .
                 $celltext . '</td>';
         }
