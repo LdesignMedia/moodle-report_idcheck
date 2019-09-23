@@ -74,22 +74,21 @@ function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : s
     $coursecontext = context_course::instance($courseid);
 
     $sql = 'SELECT a.answer
-            FROM {block_instances} bi 
-            JOIN {context} c ON (bi.id = c.instanceid AND c.contextlevel = 80)
-            JOIN {block_questionpopup_answer} a ON (a.userid = :userid AND a.contextid = c.id)
+            FROM {block_questionpopup_answer} a  
             WHERE
-                    bi.parentcontextid = :parentcontextid
-                AND 
-                    bi.blockname = :blockname
-                ';
+                (a.userid = :userid AND a.contextid = :contextid)';
 
     $answer = $DB->get_record_sql($sql, [
         'userid' => $userid,
-        'parentcontextid' => $coursecontext->id,
-        'blockname' => 'questionpopup',
+        'contextid' => $coursecontext->id,
     ]);
 
-    return $answer->answer ?? '-';
+    if (!empty($answer)) {
+        $answers = unserialize($answer->answer);
+        return implode('<br>', (array) $answers);
+    }
+
+    return '-';
 }
 
 /**
