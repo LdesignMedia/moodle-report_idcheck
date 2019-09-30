@@ -363,6 +363,8 @@ if ($csv) {
     print '</tr></thead><tbody>';
 }
 
+$breaks = array("<br />","<br>","<br/>" , "<hr>");
+
 // Row for each user
 foreach ($progress as $user) {
 
@@ -383,8 +385,8 @@ foreach ($progress as $user) {
             echo $sep . csv_quote($user->{$field});
         }
         //
-        print $sep . csv_quote($answer);
-        print $sep . csv_quote($phoneanswer);
+        print $sep . csv_quote(str_ireplace($breaks, " ", $answer));
+        print $sep . csv_quote(str_ireplace($breaks, " ", $phoneanswer));
         print $sep . csv_quote($completed);
         print $sep . csv_quote($completedtime);
 
@@ -455,7 +457,7 @@ foreach ($progress as $user) {
 
         if ($csv) {
 
-            $describe .= PHP_EOL . html_to_text(\report_idcheck\helper::get_answers_forum($activity->instance, $user->id));
+            $describe .= " " . strip_tags(\report_idcheck\helper::get_answers_forum($activity->instance, $user->id)) . " ";
             print $sep . csv_quote($describe) . $sep . csv_quote($date);
 
         } else {
