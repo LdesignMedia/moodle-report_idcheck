@@ -36,6 +36,7 @@ if (!$course) {
     print_error('invalidcourseid');
 }
 $context = context_course::instance($course->id);
+$popupheadings = \report_idcheck\helper::get_headings_popup($course->id);
 
 // Sort (default lastname, optionally firstname)
 $sort = optional_param('sort', '', PARAM_ALPHA);
@@ -298,7 +299,10 @@ if (!$csv) {
             get_user_field_name($field) . '</th>';
     }
 
-    echo '<th>' . get_string('questionpopup:answer', 'report_idcheck') . '</th>';
+    foreach ($popupheadings as $heading) {
+        echo '<th>' . $heading . '</th>';
+    }
+
     echo '<th>' . get_string('phone:answer', 'report_idcheck') . '</th>';
     echo '<th>' . get_string('coursecompletion', 'report_idcheck') . '</th>';
     echo '<th>' . get_string('coursecompletion_time', 'report_idcheck') . '</th>';
@@ -308,7 +312,10 @@ if (!$csv) {
         echo $sep . csv_quote(get_user_field_name($field));
     }
 
-    echo $sep . csv_quote(get_string('questionpopup:answer', 'report_idcheck'));
+    foreach ($popupheadings as $heading) {
+        echo $sep . csv_quote($heading);
+    }
+
     echo $sep . csv_quote(get_string('phone:answer', 'report_idcheck'));
     echo $sep . csv_quote(get_string('coursecompletion', 'report_idcheck'));
     echo $sep . csv_quote(get_string('coursecompletion_time', 'report_idcheck'));
@@ -363,12 +370,12 @@ if ($csv) {
     print '</tr></thead><tbody>';
 }
 
-$breaks = array("<br />","<br>","<br/>" , "<hr>");
+$breaks = ["<br />", "<br>", "<br/>", "<hr>"];
 
 // Row for each user
 foreach ($progress as $user) {
 
-    $answer = report_idcheck_questionpopup_answer($user->id, $course->id);
+    $answers = report_idcheck_questionpopup_answer($user->id, $course->id);
     $phoneanswer = report_idcheck_phone_answer($user->id, $course->id);
 
     $ccompletion = new completion_completion([
@@ -385,7 +392,10 @@ foreach ($progress as $user) {
             echo $sep . csv_quote($user->{$field});
         }
         //
-        print $sep . csv_quote(str_ireplace($breaks, " ", $answer));
+        foreach($answers as $answer){
+            print $sep . csv_quote(str_ireplace($breaks, " ", $answer));
+        }
+
         print $sep . csv_quote(str_ireplace($breaks, " ", $phoneanswer));
         print $sep . csv_quote($completed);
         print $sep . csv_quote($completedtime);
@@ -398,7 +408,10 @@ foreach ($progress as $user) {
         }
         //
 
-        echo '<td>' . $answer . '</td>';
+        foreach($answers as $answer){
+            echo '<td>' . $answer . '</td>';
+        }
+
         echo '<td>' . $phoneanswer . '</td>';
         echo '<td>' . $completed . '</td>';
         echo '<td>' . $completedtime . '</td>';

@@ -25,6 +25,8 @@
  **/
 
 namespace report_idcheck;
+use context_course;
+
 defined('MOODLE_INTERNAL') || die;
 
 class helper {
@@ -84,6 +86,44 @@ class helper {
         $forums[$activityid] = $DB->get_records_menu('forum_discussions', ['forum' => $activityid], '', 'id , id as v');
 
         return $forums[$activityid];
+    }
+
+    /**
+     * Get all popup headings
+     *
+     * @param int $courseid
+     *
+     * @return array
+     * @throws \dml_exception
+     */
+    public static function get_headings_popup(int $courseid) : array {
+
+        global $DB;
+        $coursecontext = context_course::instance($courseid);
+
+        $blockid = $DB->get_field('block_instances', 'id', ['parentcontextid' => $coursecontext->id , 'blockname' => 'questionpopup']);
+        $blockcontext = \context_block::instance($blockid);
+
+        $sql = 'SELECT p.* FROM {block_questionpopup} p WHERE (p.contextid = :contextid)';
+        $popup = $DB->get_record_sql($sql, [
+            'contextid' => $blockcontext->id,
+        ]);
+
+        if(empty($popup)){
+            return [];
+        }
+
+        $currentlanguage = current_language();
+        $popup = unserialize($popup->question);
+
+        $list = [];
+        foreach($popup as $k => $v){
+            if(stristr($k, '_'. $currentlanguage)){
+                $list[] = $v;
+            }
+        }
+
+        return $list;
     }
 
 }

@@ -66,11 +66,16 @@ function report_idcheck_extend_navigation_course($navigation, $course, $context)
  * @param int $userid
  * @param int $courseid
  *
- * @return string
+ * @return array
  * @throws dml_exception
  */
-function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : string {
+function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : array {
     global $DB;
+    $default = [
+        'question_1' => '-',
+        'question_2' => '-',
+        'question_3' => '-',
+    ];
     $coursecontext = context_course::instance($courseid);
 
     $sql = 'SELECT a.answer
@@ -85,10 +90,10 @@ function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : s
 
     if (!empty($answer)) {
         $answers = unserialize($answer->answer);
-        return implode('<br>', (array) $answers);
+        return array_merge($default, (array)$answers);
     }
 
-    return '-';
+    return $default;
 }
 
 /**
