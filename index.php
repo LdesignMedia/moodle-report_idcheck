@@ -85,6 +85,11 @@ if ($silast !== 'all') {
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 
+$PAGE->requires->css('/report/idcheck/table.css');
+$PAGE->requires->js('/report/idcheck/jquery-3.4.1.min.js' , true);
+$PAGE->requires->js('/report/idcheck/table.js' , true);
+
+
 require_login($course);
 
 // Check basic permission
@@ -273,9 +278,9 @@ if (!$csv) {
         echo $OUTPUT->footer();
         exit;
     }
-
-    print '<div id="completion-progress-wrapper" class="no-overflow">';
-    print '<table id="completion-progress" class="generaltable flexible boxaligncenter" style="text-align:left"><thead><tr style="vertical-align:top">';
+   // print '<div style="overflow:scroll;height:400px;">';
+    print '<div>';
+    print '<table id="completion-progress" class="generaltable boxaligncenter" style="text-align:left"><thead><tr style="vertical-align:top">';
 
     // User heading / sort option
     print '<th scope="col" class="completion-sortchoice">';
@@ -513,6 +518,19 @@ print '<ul class="progress-actions"><li><a href="index.php?course=' . $course->i
     '&amp;format=csv">' . get_string('csvdownload', 'completion') . '</a></li>
     <li><a href="index.php?course=' . $course->id . '&amp;format=excelcsv">' .
     get_string('excelcsvdownload', 'completion') . '</a></li></ul>';
+
+echo '
+<script>
+$(document).ready( function () {
+    $(\'#completion-progress\').DataTable({
+         "scrollY": 400,
+        "scrollX": true
+    });
+} );
+</script>
+
+';
+
 
 echo $OUTPUT->footer();
 
