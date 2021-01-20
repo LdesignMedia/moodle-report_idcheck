@@ -27,7 +27,7 @@ require('../../config.php');
 require_once($CFG->libdir . '/completionlib.php');
 require_once('lib.php');
 
-define('COMPLETION_REPORT_PAGE', 25);
+define('COMPLETION_REPORT_PAGE', 1000);
 
 // Get course
 $id = required_param('course', PARAM_INT);
@@ -86,9 +86,8 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 
 $PAGE->requires->css('/report/idcheck/table.css');
-$PAGE->requires->js('/report/idcheck/jquery-3.4.1.min.js' , true);
-$PAGE->requires->js('/report/idcheck/table.js' , true);
-
+$PAGE->requires->js('/report/idcheck/jquery-3.4.1.min.js', true);
+$PAGE->requires->js('/report/idcheck/table.js', true);
 
 require_login($course);
 
@@ -278,7 +277,7 @@ if (!$csv) {
         echo $OUTPUT->footer();
         exit;
     }
-   // print '<div style="overflow:scroll;height:400px;">';
+    // print '<div style="overflow:scroll;height:400px;">';
     print '<div>';
     print '<table id="completion-progress" class="generaltable boxaligncenter" style="text-align:left"><thead><tr style="vertical-align:top">';
 
@@ -408,16 +407,21 @@ foreach ($progress as $user) {
     } else {
         print '<tr><th scope="row"><a href="' . $CFG->wwwroot . '/user/view.php?id=' .
             $user->id . '&amp;course=' . $course->id . '">' . fullname($user) . '</a></th>';
+
         foreach ($extrafields as $field) {
             echo '<td>' . s($user->{$field}) . '</td>';
         }
-        //
+
+        $icon = $OUTPUT->action_icon(new moodle_url('/report/idcheck/edit_questionpopup.php', [
+            'course' => $id,
+            'userid' => $user->id,
+        ]), new pix_icon('t/edit', ''), null);
 
         foreach($answers as $answer){
-            echo '<td>' . $answer . '</td>';
+            echo '<td>' . $answer . ' <br>' . $icon . '</td>';
         }
 
-        echo '<td>' . $phoneanswer . '</td>';
+        echo '<td>' . $phoneanswer . ' </td>';
         echo '<td>' . $completed . '</td>';
         echo '<td>' . $completedtime . '</td>';
     }
@@ -531,6 +535,4 @@ $(document).ready( function () {
 
 ';
 
-
 echo $OUTPUT->footer();
-

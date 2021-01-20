@@ -31,3 +31,9 @@ $string['questionpopup:answer'] = 'Answer popup';
 $string['coursecompletion'] = 'Course completed';
 $string['phone:answer'] = 'Phone numbers';
 $string['coursecompletion_time'] = 'Course completed time';
+
+// Form.
+$string['form:questionpopup'] = 'Edit answers question popup';
+
+// Button.
+$string['btn:edit'] = 'Edit';
