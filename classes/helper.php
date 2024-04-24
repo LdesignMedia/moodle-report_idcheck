@@ -25,6 +25,7 @@
  **/
 
 namespace report_idcheck;
+
 use context_course;
 
 defined('MOODLE_INTERNAL') || die;
@@ -50,7 +51,7 @@ class helper {
             return '';
         }
 
-        list($insql, $params) = $DB->get_in_or_equal($discussions, SQL_PARAMS_NAMED);
+        [$insql, $params] = $DB->get_in_or_equal($discussions, SQL_PARAMS_NAMED);
 
         $sql = 'SELECT p.id, p.message 
                 FROM {forum_posts} p 
@@ -96,12 +97,13 @@ class helper {
      * @return array
      * @throws \dml_exception
      */
-    public static function get_headings_popup(int $courseid) : array {
+    public static function get_headings_popup(int $courseid): array {
 
         global $DB;
         $coursecontext = context_course::instance($courseid);
 
-        $blockid = $DB->get_field('block_instances', 'id', ['parentcontextid' => $coursecontext->id , 'blockname' => 'questionpopup']);
+        $blockid =
+            $DB->get_field('block_instances', 'id', ['parentcontextid' => $coursecontext->id, 'blockname' => 'questionpopup']);
         $blockcontext = \context_block::instance($blockid);
 
         $sql = 'SELECT p.* FROM {block_questionpopup} p WHERE (p.contextid = :contextid)';
@@ -109,7 +111,7 @@ class helper {
             'contextid' => $blockcontext->id,
         ]);
 
-        if(empty($popup)){
+        if (empty($popup)) {
             return [];
         }
 
@@ -117,8 +119,8 @@ class helper {
         $popup = unserialize($popup->question);
 
         $list = [];
-        foreach($popup as $k => $v){
-            if(stristr($k, '_'. $currentlanguage)){
+        foreach ($popup as $k => $v) {
+            if (stristr($k, '_' . $currentlanguage)) {
                 $list[] = $v;
             }
         }

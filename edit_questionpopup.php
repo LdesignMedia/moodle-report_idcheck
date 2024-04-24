@@ -62,7 +62,7 @@ if (($data = $form->get_data()) != false) {
     $answerrecord = $DB->get_record_sql($sql, [
         'userid' => $userid,
         'contextid' => $coursecontext->id,
-    ] , MUST_EXIST);
+    ], MUST_EXIST);
 
     $questions = [];
     foreach ($data as $question => $answer) {

@@ -362,7 +362,7 @@ foreach ($activities as $activity) {
         }
         print '</th>';
     }
-    $formattedactivities[$activity->id] = (object)[
+    $formattedactivities[$activity->id] = (object) [
         'datepassedclass' => $datepassedclass,
         'displayname' => $displayname,
     ];
@@ -396,7 +396,7 @@ foreach ($progress as $user) {
             echo $sep . csv_quote($user->{$field});
         }
         //
-        foreach($answers as $answer){
+        foreach ($answers as $answer) {
             print $sep . csv_quote(str_ireplace($breaks, " ", $answer));
         }
 
@@ -417,7 +417,7 @@ foreach ($progress as $user) {
             'userid' => $user->id,
         ]), new pix_icon('t/edit', ''), null);
 
-        foreach($answers as $answer){
+        foreach ($answers as $answer) {
             echo '<td>' . $answer . ' <br>' . $icon . '</td>';
         }
 
@@ -428,7 +428,6 @@ foreach ($progress as $user) {
 
     // Progress for each activity
     foreach ($activities as $activity) {
-
 
         if ($activity->modname !== 'forum') {
             continue;
@@ -465,7 +464,7 @@ foreach ($progress as $user) {
         $completionicon = 'completion-' . $completiontrackingstring . '-' . $completiontype;
 
         if ($overrideby) {
-            $overridebyuser = \core_user::get_user($overrideby, '*', MUST_EXIST);
+            $overridebyuser = core_user::get_user($overrideby, '*', MUST_EXIST);
             $describe = get_string('completion-' . $completiontype, 'completion', fullname($overridebyuser));
         } else {
             $describe = get_string('completion-' . $completiontype, 'completion');

@@ -29,8 +29,8 @@ defined('MOODLE_INTERNAL') || die;
  * This function extends the navigation with the report items
  *
  * @param navigation_node $navigation The navigation node to extend
- * @param stdClass        $course     The course to object for the report
- * @param stdClass        $context    The context of the course
+ * @param stdClass $course            The course to object for the report
+ * @param stdClass $context           The context of the course
  *
  * @throws coding_exception
  * @throws moodle_exception
@@ -69,7 +69,7 @@ function report_idcheck_extend_navigation_course($navigation, $course, $context)
  * @return array
  * @throws dml_exception
  */
-function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : array {
+function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0): array {
     global $DB;
     $default = [
         'question_1' => '-',
@@ -90,7 +90,8 @@ function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : a
 
     if (!empty($answer)) {
         $answers = unserialize($answer->answer);
-        return array_merge($default, (array)$answers);
+
+        return array_merge($default, (array) $answers);
     }
 
     return $default;
@@ -99,7 +100,7 @@ function report_idcheck_questionpopup_answer(int $userid, int $courseid = 0) : a
 /**
  * Return a list of page types
  *
- * @param string   $pagetype       current page type
+ * @param string $pagetype         current page type
  * @param stdClass $parentcontext  Block's parent context
  * @param stdClass $currentcontext Current context of block
  *

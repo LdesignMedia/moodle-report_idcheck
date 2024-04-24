@@ -55,4 +55,5 @@ class questionpopup extends \moodleform {
 
         $this->add_action_buttons(true, get_string('btn:edit', 'report_idcheck'));
     }
+
 }
