@@ -6,7 +6,7 @@ Added a number of additional columns to the standard completion report.
 
 * Author: Luuk Verhoeven, [MFreak.nl](https://MFreak.nl/)
 * Min. required: Moodle 3.5.x
-* Supports PHP: 7.0 | 7.1 
+* Supports PHP: 7.0 | 7.1 | 8.1
 
 
 ## List of features
